@@ -20,11 +20,11 @@ class Ingredient {
     );
   }
 
-  String toJsonString() {
-    return jsonEncode({
-      'name': name,
-      'quantity': quantity,
-      'measure': unit,
-    });
+  Map<String, dynamic> toJson() {
+    return {
+      "name": name,
+      "quantity": quantity,
+      "unit": unit,
+    };
   }
 }

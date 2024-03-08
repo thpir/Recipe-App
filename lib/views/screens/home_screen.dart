@@ -16,7 +16,9 @@ class HomeScreen extends StatelessWidget {
           child: Text('Hello World!'),
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).pushNamed('/input-screen');
+          },
           backgroundColor: Colors.indigo,
           foregroundColor: Colors.white,
           child: const Icon(Icons.add),

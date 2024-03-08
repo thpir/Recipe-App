@@ -9,6 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  image_picker: ^1.0.7
+  numberpicker: ^2.1.2
+  provider: ^6.1.1
   sqflite: ^2.3.2
 
 dev_dependencies:

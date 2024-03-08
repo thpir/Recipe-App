@@ -25,13 +25,13 @@ class DatabaseModel {
   static const String CREATE_TABLE_UNITS = """
     CREATE TABLE IF NOT EXISTS units(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT,
+      name TEXT
     )
     """;
   static const String CREATE_TABLE_CATEGORIES = """
     CREATE TABLE IF NOT EXISTS categories(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT,
+      name TEXT
     )
     """;
 

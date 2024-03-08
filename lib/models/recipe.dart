@@ -8,7 +8,7 @@ class Recipe {
   final String difficulty;
   final String categories;
   final String instructions;
-  final List<int> photo;
+  final String photo;
   final int favorite;
   final String source;
 
@@ -26,4 +26,18 @@ class Recipe {
     required this.favorite,
     required this.source,
   });
+
+  Map<String, Object> newRecipeToMap() => {
+        'name': name,
+        'ingredients': ingredients,
+        'preparation_time': preparationTime,
+        'cooking_time': cookingTime,
+        'portion_size': portionSize,
+        'difficulty': difficulty,
+        'categories': categories,
+        'instructions': instructions,
+        'photo': photo,
+        'favorite': favorite,
+        'source': source,
+      };
 }

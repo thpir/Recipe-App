@@ -26,6 +26,7 @@ class RecipeController extends ChangeNotifier {
   int portionSize = 0;
   String difficulty = "Easy";
   List<String> _availableCategories = [];
+  // List<Recipe> _allRecipes = [];
 
   @override
   void dispose() {
@@ -38,6 +39,16 @@ class RecipeController extends ChangeNotifier {
     sourceController.dispose();
   }
 
+  // // getting a copy of all the categories
+  // List<Recipe> get allRecipes => _allRecipes;
+
+  // Fetch all categories from the database
+  Future<List<Recipe>> fetchAllRecipes() async {
+    final recipeList = await DatabaseModel.getTableData("recipes");
+    return recipeList.map((recipe) => Recipe.fromJson(recipe)).toList();
+  }
+
+  // Save recipe to the database
   Future<void> saveRecipe() async {
     if (nameController.text.isNotEmpty) {
       final Recipe recipe = Recipe(
@@ -50,18 +61,38 @@ class RecipeController extends ChangeNotifier {
         difficulty: difficulty,
         categories: jsonEncode(categories),
         instructions: jsonEncode(instructions),
-        photo: image != null ? jsonEncode(image!.toList()) : "",
+        photo: image != null ? image!.toList() : List<int>.empty(),
         favorite: 0,
         source: sourceController.text,
       );
-      await DatabaseModel.insertItem("recipes", recipe.newRecipeToMap());
+      await DatabaseModel.insertItem("recipes", recipe.newRecipeToMap()).then((_) => clearForm());
+      notifyListeners();
     } else {}
   }
 
-  /// Adding tags to the recipe
+  // Clearing the entire form
+  void clearForm() {
+    nameController.clear();
+    amountController.clear();
+    unitController.clear();
+    ingredientController.clear();
+    instructionController.clear();
+    sourceController.clear();
+    ingredients.clear();
+    instructions.clear();
+    categories.clear();
+    prepTime = 0;
+    cookTime = 0;
+    portionSize = 0;
+    difficulty = "Easy";
+    image = null;
+    notifyListeners();
+  }
+
+  // getting a copy of all the categories
   List<String> get availableCategories => _availableCategories;
 
-  // Fetch categories from the database
+  // Fetch all categories from the database
   Future<void> fetchCategories() async {
     final categoryList = await DatabaseModel.getTableData("categories");
     _availableCategories =

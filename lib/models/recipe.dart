@@ -8,7 +8,7 @@ class Recipe {
   final String difficulty;
   final String categories;
   final String instructions;
-  final String photo;
+  final List<int> photo;
   final int favorite;
   final String source;
 
@@ -26,6 +26,21 @@ class Recipe {
     required this.favorite,
     required this.source,
   });
+
+  factory Recipe.fromJson(Map<String, dynamic> data) => Recipe(
+        id: data['id'],
+        name: data['name'],
+        ingredients: data['ingredients'],
+        preparationTime: data['preparation_time'],
+        cookingTime: data['cooking_time'],
+        portionSize: data['portion_size'],
+        difficulty: data['difficulty'],
+        categories: data['categories'],
+        instructions: data['instructions'],
+        photo: data['photo'] as List<int>,
+        favorite: data['favorite'],
+        source: data['source'],
+      );
 
   Map<String, Object> newRecipeToMap() => {
         'name': name,

@@ -12,6 +12,7 @@ dependencies:
   flutter_launcher_icons: ^0.13.1
   flutter_native_splash: ^2.3.13
   image_picker: ^1.0.7
+  keep_screen_on: ^3.0.0
   numberpicker: ^2.1.2
   provider: ^6.1.1
   sqflite: ^2.3.2

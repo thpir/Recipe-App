@@ -19,21 +19,15 @@ class HomeScreen extends StatelessWidget {
         body: FutureBuilder(
             future: controller.fetchAllRecipes(),
             builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                var allRecipes = snapshot.data;
-                if (allRecipes != null) {
-                  allRecipes.sort((a, b) => a.name.compareTo(b.name));
-                  return ListView.builder(
-                    itemCount: allRecipes.length,
-                    itemBuilder: (context, index) {
-                      return RecipeCard(recipe: allRecipes[index]);
-                    });
-                } else {
-                  return const Center(
-                    child: Text('No recipes found...'),
-                  );
-                }
-              } else {
+              if (snapshot.connectionState == ConnectionState.done) {
+                var allRecipes = controller.allRecipes;
+                allRecipes.sort((a, b) => a.name.compareTo(b.name));
+                return ListView.builder(
+                  itemCount: allRecipes.length,
+                  itemBuilder: (context, index) {
+                    return RecipeCard(recipeId: allRecipes[index].id!);
+                  });
+                            } else {
                 return const Center(
                   child: CircularProgressIndicator(
                     color: Colors.indigo,

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:recipe_app/controllers/recipe_controller.dart';
@@ -13,7 +15,6 @@ class _FormImageState extends State<FormImage> {
   @override
   Widget build(BuildContext context) {
     final controller = Provider.of<RecipeController>(context);
-
     void showImagePickerDialog() {
       showDialog(
           context: context,
@@ -26,17 +27,15 @@ class _FormImageState extends State<FormImage> {
                   ListTile(
                     leading: const Icon(Icons.camera),
                     title: const Text("Take photo"),
-                    onTap: () {
-                      controller.takeImage();
-                      Navigator.of(context).pop();
+                    onTap: () async {
+                      await controller.takeImage().then((_) => Navigator.of(context).pop());
                     },
                   ),
                   ListTile(
                     leading: const Icon(Icons.image),
                     title: const Text("Choose from gallery"),
-                    onTap: () {
-                      controller.pickImage();
-                      Navigator.of(context).pop();
+                    onTap: () async {
+                      await controller.pickImage().then((_) => Navigator.of(context).pop());
                     },
                   ),
                 ],
@@ -52,16 +51,17 @@ class _FormImageState extends State<FormImage> {
             height: 200,
             width: double.infinity,
             color: Colors.black45,
-            child: controller.image != null
-                ? Image.memory(
-                    controller.image!,
+            child: controller.pickedImage != null
+                  ? Image.file(
+                    File(controller.pickedImage!.path),
                     fit: BoxFit.cover,
                   )
-                : const Icon(
+                  : const Icon(
                     Icons.photo,
                     size: 100,
                     color: Colors.white38,
-                  )),
+                  )
+                ),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Align(

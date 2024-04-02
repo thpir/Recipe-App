@@ -17,7 +17,7 @@ class DatabaseModel {
       difficulty TEXT,
       categories TEXT,
       instructions TEXT,
-      photo BLOB,
+      photo TEXT,
       favorite INTEGER,
       source TEXT
     )
@@ -51,14 +51,14 @@ class DatabaseModel {
     return db.query(tableName);
   }
 
-  static Future<void> insertItem(String table, Map<String, Object> data) async {
+  static Future<void> insertItem(String table, Map<String, Object?> data) async {
     final db = await DatabaseModel.initializeDatabase();
     db.insert(table, data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
   }
 
   static Future<void> deleteItem(String table, int id) async {
     final db = await DatabaseModel.initializeDatabase();
-    db.delete(table, where: '_id = ?', whereArgs: [id]);
+    db.delete(table, where: 'id = ?', whereArgs: [id]);
   }
 
   static Future<void> update(Recipe recipe,) async {
@@ -76,9 +76,20 @@ class DatabaseModel {
           'instructions': recipe.instructions,
           'photo': recipe.photo,
           'favorite': recipe.favorite,
-          'source': recipe.favorite,
+          'source': recipe.source
         },
-        where: '_id = ?',
+        where: 'id = ?',
         whereArgs: [recipe.id!]);
+  }
+
+  static Future<void> likeRecipe(int id, int favorite,) async {
+    final db = await DatabaseModel.initializeDatabase();
+    db.update(
+        "recipes",
+        {
+          'favorite': favorite
+        },
+        where: 'id = ?',
+        whereArgs: [id]);
   }
 }

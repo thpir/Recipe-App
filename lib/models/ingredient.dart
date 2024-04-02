@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class Ingredient {
   final String name;
   final int quantity;
@@ -11,12 +9,11 @@ class Ingredient {
     required this.unit,
   });
 
-  factory Ingredient.fromJson(String jsonString) {
-    Map<String, dynamic> json = jsonDecode(jsonString);
+  factory Ingredient.fromJson(Map<String, dynamic> jsonString) {
     return Ingredient(
-      name: json['name'],
-      quantity: json['quantity'],
-      unit: json['unit'],
+      name: jsonString['name'],
+      quantity: jsonString['quantity'],
+      unit: jsonString['unit'],
     );
   }
 

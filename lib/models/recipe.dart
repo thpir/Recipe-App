@@ -2,15 +2,15 @@ class Recipe {
   final int? id;
   final String name;
   final String ingredients;
-  final int preparationTime;
-  final int cookingTime;
-  final String portionSize;
+  final int? preparationTime;
+  final int? cookingTime;
+  final String? portionSize;
   final String difficulty;
   final String categories;
   final String instructions;
-  final List<int> photo;
+  final String? photo;
   final int favorite;
-  final String source;
+  final String? source;
 
   Recipe({
     this.id,
@@ -37,22 +37,22 @@ class Recipe {
         difficulty: data['difficulty'],
         categories: data['categories'],
         instructions: data['instructions'],
-        photo: data['photo'] as List<int>,
+        photo: data['photo'],
         favorite: data['favorite'],
         source: data['source'],
       );
 
-  Map<String, Object> newRecipeToMap() => {
+  Map<String, Object?> newRecipeToMap() => {
         'name': name,
         'ingredients': ingredients,
-        'preparation_time': preparationTime,
-        'cooking_time': cookingTime,
-        'portion_size': portionSize,
+        'preparation_time': preparationTime ?? 0,
+        'cooking_time': cookingTime ?? 0,
+        'portion_size': portionSize??'',
         'difficulty': difficulty,
         'categories': categories,
         'instructions': instructions,
         'photo': photo,
         'favorite': favorite,
-        'source': source,
+        'source': source?? '',
       };
 }

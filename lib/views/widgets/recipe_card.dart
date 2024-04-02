@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:recipe_app/controllers/recipe_controller.dart';
+import 'package:recipe_app/globals.dart';
 import 'package:recipe_app/views/screens/recipe_screen.dart';
 
 class RecipeCard extends StatelessWidget {
@@ -27,21 +28,36 @@ class RecipeCard extends StatelessWidget {
             ),
           );
         },
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            width: double.infinity,
-            height: 70,
+        child: Container(
+          width: double.infinity,
+          height: 70,
+          decoration: BoxDecoration(
             color: Colors.indigo[100],
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                controller.allRecipes
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 2,
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(defaultBorderRadius),
+                  bottomLeft: Radius.circular(defaultBorderRadius),
+                ),
+                child: controller.allRecipes
                             .firstWhere((recipe) => recipe.id == recipeId)
                             .photo !=
                         null
                     ? FutureBuilder(
-                        future: controller.checkIfFileExists(controller.allRecipes
+                        future: controller.checkIfFileExists(controller
+                            .allRecipes
                             .firstWhere((recipe) => recipe.id == recipeId)
                             .photo!),
                         builder: (context, snapshot) {
@@ -85,17 +101,17 @@ class RecipeCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                Expanded(
-                  flex: 1,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(controller.allRecipes
-                        .firstWhere((recipe) => recipe.id == recipeId)
-                        .name),
-                  ),
-                )
-              ],
-            ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(controller.allRecipes
+                      .firstWhere((recipe) => recipe.id == recipeId)
+                      .name),
+                ),
+              )
+            ],
           ),
         ),
       ),

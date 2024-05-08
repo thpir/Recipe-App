@@ -8,6 +8,7 @@ import 'package:recipe_app/controllers/recipe_controller.dart';
 import 'package:recipe_app/models/database_model.dart';
 import 'package:recipe_app/models/ingredient.dart';
 import 'package:recipe_app/models/recipe.dart';
+import 'package:recipe_app/utils/file_saver.dart';
 import 'package:recipe_app/views/screens/edit_recipe_screen.dart';
 import 'package:recipe_app/views/widgets/form_title.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -195,6 +196,34 @@ class _RecipeScreenState extends State<RecipeScreen> {
                           MaterialStateProperty.all(Colors.black54),
                     ),
                     icon: const Icon(Icons.edit),
+                  ),
+                  IconButton.filled(
+                    onPressed: () async {
+                      recipe.recipeToExportFormat().then((value) async {
+                        var result = await FileSaver()
+                            .saveSingleRecipe(value, recipe.name);
+                        if (context.mounted) {
+                          if (result != null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(result),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Successfully saved recipe!'),
+                              ),
+                            );
+                          }
+                        }
+                      });
+                    },
+                    style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all(Colors.black54),
+                    ),
+                    icon: const Icon(Icons.share),
                   ),
                   Expanded(
                     flex: 1,

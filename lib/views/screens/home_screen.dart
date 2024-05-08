@@ -5,13 +5,15 @@ import 'package:recipe_app/globals.dart';
 import 'package:recipe_app/views/widgets/home_screen_widgets/favorites_view.dart';
 import 'package:recipe_app/views/widgets/home_screen_widgets/home_screen_navbar.dart';
 import 'package:recipe_app/views/widgets/home_screen_widgets/recipe_book_view.dart';
+import 'package:recipe_app/views/widgets/home_screen_widgets/settings_view.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   static const List<Widget> _pages = <Widget>[
     RecipeBookView(),
-    FavoritesView()
+    FavoritesView(),
+    SettingsView()
   ];
 
   @override

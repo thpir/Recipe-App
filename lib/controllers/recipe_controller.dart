@@ -114,7 +114,6 @@ class RecipeController extends ChangeNotifier {
 
   Future<String?> saveImage(String recipeName) async {
     if (pickedImage != null) {
-      print('>>>>>>>>> Image not null!!!');
       final documentsDirectory = await getApplicationDocumentsDirectory();
       final filename =
           '${recipeName.replaceAll(RegExp('[^A-Za-z0-9]'), '')}${DateTime.now().millisecondsSinceEpoch}';
@@ -122,7 +121,6 @@ class RecipeController extends ChangeNotifier {
       await savedFile.writeAsBytes(await pickedImage!.readAsBytes());
       return savedFile.path;
     } else {
-      print('>>>>>>>>> Image null!!!');
       return null;
     }
   }

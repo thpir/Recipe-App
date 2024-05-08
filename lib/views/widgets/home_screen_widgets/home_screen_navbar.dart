@@ -12,7 +12,8 @@ class HomeScreenNavbar extends StatefulWidget {
 class _HomeScreenNavbarState extends State<HomeScreenNavbar> {
   static const List<IconData> icons = [
     Icons.menu_book_rounded,
-    Icons.favorite_outline_rounded
+    Icons.favorite_rounded,
+    Icons.settings_rounded
   ];
 
   double getLineWidth(bool active) => active ? 32 : 0;

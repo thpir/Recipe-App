@@ -5,10 +5,11 @@ import 'package:provider/provider.dart';
 import 'package:recipe_app/controllers/recipe_controller.dart';
 import 'package:recipe_app/globals.dart';
 import 'package:recipe_app/views/screens/recipe_screen.dart';
+import 'package:recipe_app/views/widgets/home_screen_widgets/image_list_placeholder.dart';
 
-class RecipeCard extends StatelessWidget {
+class RecipeListCard extends StatelessWidget {
   final int recipeId;
-  const RecipeCard({required this.recipeId, super.key});
+  const RecipeListCard({required this.recipeId, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -71,44 +72,26 @@ class RecipeCard extends StatelessWidget {
                                     width: 70,
                                     height: 70,
                                     fit: BoxFit.cover)
-                                : Container(
-                                    width: 70,
-                                    height: 70,
-                                    color: Colors.indigo[300],
-                                    child: Center(
-                                      child: Image.asset(
-                                        "assets/launcher_icons/ic_launcher_foreground.png",
-                                        width: 50,
-                                        height: 50,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  );
+                                : const ImageListPlaceholder();
                           } else {
                             return const CircularProgressIndicator();
                           }
                         })
-                    : Container(
-                        width: 70,
-                        height: 70,
-                        color: Colors.indigo[300],
-                        child: Center(
-                          child: Image.asset(
-                            "assets/launcher_icons/ic_launcher_foreground.png",
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
+                    : const ImageListPlaceholder()
               ),
               Expanded(
                 flex: 1,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Text(controller.allRecipes
+                  child: Text(
+                    controller.allRecipes
                       .firstWhere((recipe) => recipe.id == recipeId)
-                      .name),
+                      .name,
+                    style: const TextStyle(
+                      fontSize: 16, 
+                      overflow: TextOverflow.ellipsis
+                    ),
+                  ),
                 ),
               )
             ],

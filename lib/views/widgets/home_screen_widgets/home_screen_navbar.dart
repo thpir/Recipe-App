@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:recipe_app/controllers/navigation_controller.dart';
+import 'package:recipe_app/controllers/home_screen_controller.dart';
 
 class HomeScreenNavbar extends StatefulWidget {
   const HomeScreenNavbar({super.key});
@@ -20,7 +20,7 @@ class _HomeScreenNavbarState extends State<HomeScreenNavbar> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<NavigationController>(context);
+    final controller = Provider.of<HomeScreenController>(context);
     return SafeArea(
         bottom: true,
         child: IntrinsicHeight(
@@ -38,7 +38,10 @@ class _HomeScreenNavbarState extends State<HomeScreenNavbar> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       IconButton(
-                        icon: Icon(icons[index], color: Colors.indigo,),
+                        icon: Icon(
+                          icons[index],
+                          color: Colors.indigo,
+                        ),
                         onPressed: () => controller.navigateToScreen(index),
                       ),
                       AnimatedSize(

@@ -1,7 +1,7 @@
 name: recipe_app
 description: "A new Flutter project."
 publish_to: 'none'
-version: 0.1.0
+version: 1.0.2
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
@@ -33,12 +33,12 @@ flutter:
     - assets/launcher_icons/
 
 flutter_launcher_icons:
-  android: "launcher_icon"
+  android: "launcher_icon_v2"
   ios: false
-  image_path: "assets/launcher_icons/ic_launcher.png"
-  adaptive_icon_background: "assets/launcher_icons/ic_launcher_background.png"
-  adaptive_icon_foreground: "assets/launcher_icons/ic_launcher_foreground.png"
-  adaptive_icon_monochrome: "assets/launcher_icons/ic_launcher_monochrome.png"
+  image_path: "assets/launcher_icons/ic_launcher_v2.png"
+  adaptive_icon_background: "assets/launcher_icons/ic_launcher_background_v2.png"
+  adaptive_icon_foreground: "assets/launcher_icons/ic_launcher_foreground_v2.png"
+  adaptive_icon_monochrome: "assets/launcher_icons/ic_launcher_monochrome_v2.png"
   min_sdk_android: 21 
 
 flutter_native_splash:
@@ -52,12 +52,12 @@ flutter_native_splash:
   # splash screen to a png image.  This is useful for gradients. The image will be stretch to the
   # size of the app. Only one parameter can be used, color and background_image cannot both be set.
   color: "#3F51B5"
-  image: "assets/launcher_icons/ic_launcher_foreground.png"
+  image: "assets/launcher_icons/ic_launcher_foreground_v2.png"
   android_12:
     # Please note that the splash screen will be clipped to a circle on the center of the screen.
     # App icon with an icon background: This should be 960×960 pixels, and fit within a circle
     # 640 pixels in diameter.
     # App icon without an icon background: This should be 1152×1152 pixels, and fit within a circle
     # 768 pixels in diameter.
-    image: "assets/launcher_icons/ic_launcher_foreground.png"
+    image: "assets/launcher_icons/ic_launcher_foreground_v2.png"
     color: "#3F51B5"

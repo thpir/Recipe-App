@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:keep_screen_on/keep_screen_on.dart';
 import 'package:provider/provider.dart';
 import 'package:recipe_app/controllers/recipe_controller.dart';
-import 'package:recipe_app/models/database_model.dart';
+import 'package:recipe_app/services/db_service.dart';
 import 'package:recipe_app/models/ingredient.dart';
 import 'package:recipe_app/models/recipe.dart';
-import 'package:recipe_app/utils/file_saver.dart';
+import 'package:recipe_app/utils/recipe_saver.dart';
 import 'package:recipe_app/views/screens/edit_recipe_screen.dart';
 import 'package:recipe_app/views/widgets/form_title.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -72,7 +72,7 @@ class _RecipeScreenState extends State<RecipeScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4.0),
             child: Text(
-                "${newIngredient.quantity} ${newIngredient.unit} ${newIngredient.name}"),
+                "${newIngredient.quantity ?? ''} ${newIngredient.unit} ${newIngredient.name}"),
           ),
         );
       }
@@ -118,8 +118,6 @@ class _RecipeScreenState extends State<RecipeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(recipe.name),
-        backgroundColor: Colors.indigo,
-        foregroundColor: Colors.white,
         actions: [
           TextButton(
               onPressed: () {
@@ -134,7 +132,7 @@ class _RecipeScreenState extends State<RecipeScreen> {
               },
               child: Text(
                 screenOn ? "Screen on" : "Screen off",
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.indigo),
               ))
         ],
       ),
@@ -164,7 +162,7 @@ class _RecipeScreenState extends State<RecipeScreen> {
                 children: [
                   IconButton.filled(
                     onPressed: () async {
-                      await DatabaseModel.likeRecipe(
+                      await DbService.likeRecipe(
                               widget.recipeId, recipe.favorite == 0 ? 1 : 0)
                           .then((_) async {
                         await controller
@@ -174,7 +172,7 @@ class _RecipeScreenState extends State<RecipeScreen> {
                     },
                     style: ButtonStyle(
                       backgroundColor:
-                          MaterialStateProperty.all(Colors.black54),
+                          WidgetStateProperty.all(Colors.black54),
                     ),
                     icon: recipe.favorite == 0
                         ? const Icon(Icons.favorite_border)
@@ -193,14 +191,14 @@ class _RecipeScreenState extends State<RecipeScreen> {
                     },
                     style: ButtonStyle(
                       backgroundColor:
-                          MaterialStateProperty.all(Colors.black54),
+                          WidgetStateProperty.all(Colors.black54),
                     ),
                     icon: const Icon(Icons.edit),
                   ),
                   IconButton.filled(
                     onPressed: () async {
                       recipe.recipeToExportFormat().then((value) async {
-                        var result = await FileSaver()
+                        var result = await RecipeSaver()
                             .saveSingleRecipe(value, recipe.name);
                         if (context.mounted) {
                           if (result != null) {
@@ -221,7 +219,7 @@ class _RecipeScreenState extends State<RecipeScreen> {
                     },
                     style: ButtonStyle(
                       backgroundColor:
-                          MaterialStateProperty.all(Colors.black54),
+                          WidgetStateProperty.all(Colors.black54),
                     ),
                     icon: const Icon(Icons.share),
                   ),
@@ -231,7 +229,7 @@ class _RecipeScreenState extends State<RecipeScreen> {
                   ),
                   IconButton.filled(
                     onPressed: () async {
-                      await DatabaseModel.deleteItem('recipes', widget.recipeId)
+                      await DbService.deleteItem('recipes', widget.recipeId)
                           .then((_) async {
                         Navigator.pop(context);
                         await controller.updateRecipeList();
@@ -239,7 +237,7 @@ class _RecipeScreenState extends State<RecipeScreen> {
                     },
                     style: ButtonStyle(
                       backgroundColor:
-                          MaterialStateProperty.all(Colors.black54),
+                          WidgetStateProperty.all(Colors.black54),
                     ),
                     icon: const Icon(
                       Icons.delete_outline,

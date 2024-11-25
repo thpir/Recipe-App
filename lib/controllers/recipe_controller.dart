@@ -6,7 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
-import 'package:recipe_app/models/database_model.dart';
+import 'package:recipe_app/services/db_service.dart';
 import 'package:recipe_app/models/ingredient.dart';
 import 'package:recipe_app/models/recipe.dart';
 
@@ -66,23 +66,23 @@ class RecipeController extends ChangeNotifier {
     sourceController.text = recipe.source ?? '';
     isLiked = recipe.favorite;
     imagePath = recipe.photo;
-    pickedImage = imagePath != null 
-      ? await checkIfFileExists(imagePath!) 
-        ? XFile(imagePath!) 
-        : null
-      : null;
+    pickedImage = imagePath != null
+        ? await checkIfFileExists(imagePath!)
+            ? XFile(imagePath!)
+            : null
+        : null;
   }
 
   Future<bool> checkIfFileExists(String path) async {
     return await File(path).exists();
-  } 
+  }
 
   // getting a copy of all the categories
   List<Recipe> get allRecipes => _allRecipes;
 
   // Fetch all categories from the database
   Future<void> fetchAllRecipes() async {
-    final recipeList = await DatabaseModel.getTableData("recipes");
+    final recipeList = await DbService.getTableData("recipes");
     _allRecipes = recipeList.map((recipe) => Recipe.fromJson(recipe)).toList();
   }
 
@@ -105,10 +105,9 @@ class RecipeController extends ChangeNotifier {
           favorite: isLiked,
           source: sourceController.text,
         );
-        await DatabaseModel.update(recipe).then((_) => clearForm());
+        await DbService.update(recipe).then((_) => clearForm());
         await fetchAllRecipes().then((value) => notifyListeners());
       });
-      
     }
   }
 
@@ -143,7 +142,7 @@ class RecipeController extends ChangeNotifier {
           favorite: isLiked,
           source: sourceController.text,
         );
-        await DatabaseModel.insertItem("recipes", recipe.newRecipeToMap())
+        await DbService.insertItem("recipes", recipe.newRecipeToMap())
             .then((_) {
           clearForm();
           notifyListeners();
@@ -177,7 +176,7 @@ class RecipeController extends ChangeNotifier {
 
   // Fetch all categories from the database
   Future<void> fetchCategories() async {
-    final categoryList = await DatabaseModel.getTableData("categories");
+    final categoryList = await DbService.getTableData("categories");
     _availableCategories =
         categoryList.map((category) => category["name"].toString()).toList();
     notifyListeners();
@@ -185,7 +184,7 @@ class RecipeController extends ChangeNotifier {
 
   // Add a new category to the database
   Future<void> addCategory(String newCategory) async {
-    await DatabaseModel.insertItem("categories", {"name": newCategory});
+    await DbService.insertItem("categories", {"name": newCategory});
     await fetchCategories();
   }
 
@@ -227,7 +226,7 @@ class RecipeController extends ChangeNotifier {
     ingredients.add(Ingredient(
       quantity: amountController.text.isNotEmpty
           ? int.parse(amountController.text)
-          : 0,
+          : null,
       unit: unitController.text.isNotEmpty ? unitController.text : "",
       name:
           ingredientController.text.isNotEmpty ? ingredientController.text : "",

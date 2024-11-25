@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:recipe_app/controllers/recipe_controller.dart';
 import 'package:recipe_app/globals.dart';
@@ -18,8 +17,8 @@ class RecipeGridCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
       child: InkWell(
-        onTap: () {
-          Navigator.push(
+        onTap: () async {
+          var result = await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => RecipeScreen(
@@ -29,6 +28,13 @@ class RecipeGridCard extends StatelessWidget {
                       0),
             ),
           );
+          //if (!context.mounted) return;
+          if (context.mounted && result != null) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(result),
+            duration: const Duration(seconds: 2),
+          ));
+          }
         },
         child: Container(
           width: double.infinity,
@@ -81,13 +87,14 @@ class RecipeGridCard extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     width: double.infinity,
-                    color: Colors.white54,
+                    color: Colors.black54,
                     child: Text(
                       controller.allRecipes
-                      .firstWhere((recipe) => recipe.id == recipeId)
-                      .name,
+                          .firstWhere((recipe) => recipe.id == recipeId)
+                          .name,
                       softWrap: true,
                       style: const TextStyle(
+                        color: Colors.white,
                         fontSize: 16,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -102,4 +109,3 @@ class RecipeGridCard extends StatelessWidget {
     );
   }
 }
-

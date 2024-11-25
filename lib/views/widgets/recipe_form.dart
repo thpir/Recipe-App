@@ -35,7 +35,7 @@ class _RecipeFormState extends State<RecipeForm> {
         ingredientsList.add(
           ListTile(
               title: Text(
-                  "${controller.ingredients[i].quantity} ${controller.ingredients[i].unit} ${controller.ingredients[i].name}",
+                  "${controller.ingredients[i].quantity ?? ''} ${controller.ingredients[i].unit} ${controller.ingredients[i].name}",
                 style: const TextStyle(fontSize: 16),
                 ),
               trailing: IconButton(

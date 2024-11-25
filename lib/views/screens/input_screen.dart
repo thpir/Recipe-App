@@ -25,8 +25,6 @@ class _InputScreenState extends State<InputScreen> {
     return Scaffold(
         appBar: AppBar(
           title: const Text('Add Recipe'),
-          backgroundColor: Colors.indigo,
-          foregroundColor: Colors.white,
           centerTitle: true,
           actions: [
             TextButton(
@@ -36,8 +34,8 @@ class _InputScreenState extends State<InputScreen> {
                 }); 
               },
               style: ButtonStyle(
-                foregroundColor: MaterialStateProperty.all(Colors.white),
-              ), 
+                foregroundColor: WidgetStateProperty.all(Colors.indigo),
+              ),
               child: const Text('Save'),
             )
           ],

@@ -3,7 +3,7 @@
 import 'package:recipe_app/models/recipe.dart';
 import 'package:sqflite/sqflite.dart' as sql;
 
-class DatabaseModel {
+class DbService {
   static const String DB_NAME = "recipeDatabase.db";
   static const int DB_VERSION = 1;
   static const String CREATE_TABLE_RECIPES = """
@@ -46,23 +46,27 @@ class DatabaseModel {
     });
   }
 
-  static Future<List<Map<String, dynamic>>> getTableData(String tableName) async {
-    final db = await DatabaseModel.initializeDatabase();
+  static Future<List<Map<String, dynamic>>> getTableData(
+      String tableName) async {
+    final db = await DbService.initializeDatabase();
     return db.query(tableName);
   }
 
-  static Future<void> insertItem(String table, Map<String, Object?> data) async {
-    final db = await DatabaseModel.initializeDatabase();
+  static Future<void> insertItem(
+      String table, Map<String, Object?> data) async {
+    final db = await DbService.initializeDatabase();
     db.insert(table, data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
   }
 
   static Future<void> deleteItem(String table, int id) async {
-    final db = await DatabaseModel.initializeDatabase();
+    final db = await DbService.initializeDatabase();
     db.delete(table, where: 'id = ?', whereArgs: [id]);
   }
 
-  static Future<void> update(Recipe recipe,) async {
-    final db = await DatabaseModel.initializeDatabase();
+  static Future<void> update(
+    Recipe recipe,
+  ) async {
+    final db = await DbService.initializeDatabase();
     db.update(
         "recipes",
         {
@@ -82,14 +86,12 @@ class DatabaseModel {
         whereArgs: [recipe.id!]);
   }
 
-  static Future<void> likeRecipe(int id, int favorite,) async {
-    final db = await DatabaseModel.initializeDatabase();
-    db.update(
-        "recipes",
-        {
-          'favorite': favorite
-        },
-        where: 'id = ?',
-        whereArgs: [id]);
+  static Future<void> likeRecipe(
+    int id,
+    int favorite,
+  ) async {
+    final db = await DbService.initializeDatabase();
+    db.update("recipes", {'favorite': favorite},
+        where: 'id = ?', whereArgs: [id]);
   }
 }

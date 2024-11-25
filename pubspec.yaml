@@ -1,7 +1,7 @@
 name: recipe_app
 description: "A new Flutter project."
 publish_to: 'none'
-version: 1.0.2
+version: 1.0.3
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
@@ -12,6 +12,7 @@ dependencies:
     sdk: flutter
   flutter_launcher_icons: ^0.13.1
   flutter_native_splash: ^2.3.13
+  image: ^4.2.0
   image_picker: ^1.0.7
   keep_screen_on: ^3.0.0
   numberpicker: ^2.1.2
@@ -33,13 +34,13 @@ flutter:
     - assets/launcher_icons/
 
 flutter_launcher_icons:
-  android: "launcher_icon_v2"
+  image_path: "assets/launcher_icons/ic_launcher.png"
+  android: true # can specify file name here e.g. "ic_launcher"
+  adaptive_icon_background: "assets/launcher_icons/ic_launcher_background.png" # only available for Android 8.0 devices and above
+  adaptive_icon_foreground: "assets/launcher_icons/ic_launcher_foreground.png" # only available for Android 8.0 devices and above
+  adaptive_icon_monochrome: "assets/launcher_icons/ic_launcher_monochrome.png" # only available for Android 13 devices and above
+  min_sdk_android: 21 # android min sdk min:16, default 21
   ios: false
-  image_path: "assets/launcher_icons/ic_launcher_v2.png"
-  adaptive_icon_background: "assets/launcher_icons/ic_launcher_background_v2.png"
-  adaptive_icon_foreground: "assets/launcher_icons/ic_launcher_foreground_v2.png"
-  adaptive_icon_monochrome: "assets/launcher_icons/ic_launcher_monochrome_v2.png"
-  min_sdk_android: 21 
 
 flutter_native_splash:
   # Customize the parameters below, and run the following command in the terminal:
@@ -52,12 +53,12 @@ flutter_native_splash:
   # splash screen to a png image.  This is useful for gradients. The image will be stretch to the
   # size of the app. Only one parameter can be used, color and background_image cannot both be set.
   color: "#3F51B5"
-  image: "assets/launcher_icons/ic_launcher_foreground_v2.png"
+  image: "assets/launcher_icons/ic_launcher_foreground.png"
   android_12:
     # Please note that the splash screen will be clipped to a circle on the center of the screen.
     # App icon with an icon background: This should be 960×960 pixels, and fit within a circle
     # 640 pixels in diameter.
     # App icon without an icon background: This should be 1152×1152 pixels, and fit within a circle
     # 768 pixels in diameter.
-    image: "assets/launcher_icons/ic_launcher_foreground_v2.png"
+    image: "assets/launcher_icons/ic_launcher_foreground.png"
     color: "#3F51B5"

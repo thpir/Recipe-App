@@ -27,9 +27,15 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Recipe'),
-        backgroundColor: Colors.indigo,
-        foregroundColor: Colors.white,
         centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).popUntil(
+              (route) => route.isFirst,
+            );
+          },
+        ),
         actions: [
           TextButton(
             onPressed: () async {
@@ -37,7 +43,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
               if (context.mounted) Navigator.of(context).pop();
             },
             style: ButtonStyle(
-              foregroundColor: MaterialStateProperty.all(Colors.white),
+              foregroundColor: WidgetStateProperty.all(Colors.indigo),
             ),
             child: const Text('Save'),
           )

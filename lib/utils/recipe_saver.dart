@@ -5,11 +5,11 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
-import 'package:recipe_app/models/database_model.dart';
+import 'package:recipe_app/services/db_service.dart';
 import 'package:recipe_app/models/image_string.dart';
 import 'package:recipe_app/models/recipe.dart';
 
-class FileSaver {
+class RecipeSaver {
   Future<String?> saveSingleRecipe(
       String recipeString, String recipeName) async {
     try {
@@ -27,7 +27,7 @@ class FileSaver {
   }
 
   Future<String?> saveAllRecipes() async {
-    final recipeList = await DatabaseModel.getTableData("recipes");
+    final recipeList = await DbService.getTableData("recipes");
     var allRecipes =
         recipeList.map((recipe) => Recipe.fromJson(recipe)).toList();
     try {
@@ -65,47 +65,27 @@ class FileSaver {
         if (result.files.single.path!.endsWith('.recipe')) {
           final File file = File(result.files.single.path!);
           file
-            .openRead()
-            .transform(utf8.decoder)
-            .transform(const LineSplitter())
-            .forEach((line) async { 
-              try {
-                // Convert each line of text to a Recipe object
-                var result = Recipe.fromExportFormat(line);
-                // Convert the image string to a Uint8List and save to the device
-                  String? imagePath;
-                  if (result.photo != null) {
-                    if (result.photo!.isNotEmpty) {
-                      var image = ImageString().fromExportFormat(result.photo!);
-                      imagePath = await saveImage(result.name, image);
-                    }
-                  }
-                  // Add the recipe to the database
-                  await importRecipe(result, imagePath);
-                } catch (e) {
-                  message = 'Failed to import recipes: $e';
+              .openRead()
+              .transform(utf8.decoder)
+              .transform(const LineSplitter())
+              .forEach((line) async {
+            try {
+              // Convert each line of text to a Recipe object
+              var result = Recipe.fromExportFormat(line);
+              // Convert the image string to a Uint8List and save to the device
+              String? imagePath;
+              if (result.photo != null) {
+                if (result.photo!.isNotEmpty) {
+                  var image = ImageString().fromExportFormat(result.photo!);
+                  imagePath = await saveImage(result.name, image);
                 }
-            });
-          
-          // final List<String> contents = await file.readAsLines();
-          // for (String line in contents) {
-          //   try {
-          //     // Convert each line of text to a Recipe object
-          //     var result = Recipe.fromExportFormat(line);
-          //     // Convert the image string to a Uint8List and save to the device
-          //     String? imagePath;
-          //     if (result.photo != null) {
-          //       if (result.photo!.isNotEmpty) {
-          //         var image = ImageString().fromExportFormat(result.photo!);
-          //         imagePath = await saveImage(result.name, image);
-          //       }
-          //     }
-          //     // Add the recipe to the database
-          //     await importRecipe(result, imagePath);
-          //   } catch (e) {
-          //     return 'Failed to import recipes: $e';
-          //   }
-          // }
+              }
+              // Add the recipe to the database
+              await importRecipe(result, imagePath);
+            } catch (e) {
+              message = 'Failed to import recipes: $e';
+            }
+          });
           message = 'Finished importing recipes';
         } else {
           message = 'Invalid file format';
@@ -131,8 +111,7 @@ class FileSaver {
       favorite: 0,
       source: recipeSource.source,
     );
-    await DatabaseModel.insertItem("recipes", recipe.newRecipeToMap())
-        .then((_) {});
+    await DbService.insertItem("recipes", recipe.newRecipeToMap()).then((_) {});
   }
 
   Future<String?> saveImage(String recipeName, Uint8List image) async {

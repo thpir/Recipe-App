@@ -8,10 +8,10 @@ class ImageGridPlaceholder extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: double.infinity,
-      color: Colors.indigo[300],
+      color: Colors.indigo,
       child: Center(
         child: Image.asset(
-          "assets/launcher_icons/ic_launcher_foreground_v2.png",
+          "assets/launcher_icons/ic_launcher_foreground.png",
           width: 200,
           height: 200,
           fit: BoxFit.cover,

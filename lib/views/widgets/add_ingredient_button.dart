@@ -107,7 +107,7 @@ class AddIngredientButton extends StatelessWidget {
                     Navigator.of(context).pop();
                   },
                   style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.all(Colors.indigo),
+                    foregroundColor: WidgetStateProperty.all(Colors.indigo),
                   ),
                   child: const Text("Cancel"),
                 ),
@@ -117,7 +117,7 @@ class AddIngredientButton extends StatelessWidget {
                     Navigator.of(context).pop();
                   },
                   style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.all(Colors.indigo),
+                    foregroundColor: WidgetStateProperty.all(Colors.indigo),
                   ),
                   child: const Text("Add"),
                 ),
@@ -131,8 +131,8 @@ class AddIngredientButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: addIngredientDialog,
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all(Colors.indigo),
-          foregroundColor: MaterialStateProperty.all(Colors.white),
+          backgroundColor: WidgetStateProperty.all(Colors.indigo),
+          foregroundColor: WidgetStateProperty.all(Colors.white),
         ),
         child: const Text("Add Ingredient"),
       ),

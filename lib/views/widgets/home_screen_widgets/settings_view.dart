@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:recipe_app/providers/recipes_provider.dart';
+import 'package:recipe_app/utils/messages.dart';
 import 'package:recipe_app/utils/recipe_saver.dart';
 
 class SettingsView extends StatefulWidget {
@@ -44,13 +47,12 @@ class _SettingsViewState extends State<SettingsView> {
                                 setState(() {
                                   _isBusy = true;
                                 });
-                                var result = await RecipeSaver().importRecipes();
+                                var result =
+                                    await RecipeSaver().pickRecipesToImport();
                                 if (context.mounted) {
-                                  if (result != null) {
-                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                      content: Text(result),
-                                    ));
-                                  }
+                                  if (result != null) showMessage(context, result);
+                                  Provider.of<RecipesProvider>(context, listen: false)
+                                    .fetchAllRecipes();
                                 }
                                 setState(() {
                                   _isBusy = false;
@@ -62,7 +64,8 @@ class _SettingsViewState extends State<SettingsView> {
                                 child: Text("Import recipe(s)"),
                               ),
                               style: ButtonStyle(
-                                foregroundColor: WidgetStateProperty.all(Colors.black),
+                                foregroundColor:
+                                    WidgetStateProperty.all(Colors.black),
                               ),
                             ),
                           ],
@@ -77,10 +80,12 @@ class _SettingsViewState extends State<SettingsView> {
                                 setState(() {
                                   _isBusy = true;
                                 });
-                                var result = await RecipeSaver().saveAllRecipes();
+                                var result =
+                                    await RecipeSaver().saveAllRecipes();
                                 if (context.mounted) {
                                   if (result != null) {
-                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(SnackBar(
                                       content: Text(result),
                                     ));
                                   }
@@ -95,7 +100,8 @@ class _SettingsViewState extends State<SettingsView> {
                                 child: Text("Export all recipes"),
                               ),
                               style: ButtonStyle(
-                                foregroundColor: WidgetStateProperty.all(Colors.black),
+                                foregroundColor:
+                                    WidgetStateProperty.all(Colors.black),
                               ),
                             ),
                           ],

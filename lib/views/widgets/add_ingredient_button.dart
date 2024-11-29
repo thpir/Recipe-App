@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:recipe_app/controllers/recipe_controller.dart';
+import 'package:recipe_app/providers/recipe_form_provider.dart';
 
 class AddIngredientButton extends StatelessWidget {
   const AddIngredientButton({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<RecipeController>(context);
+    final recipeFormProvider = Provider.of<RecipeFormProvider>(context);
 
     void addIngredientDialog() {
       showDialog(
@@ -44,7 +44,7 @@ class AddIngredientButton extends StatelessWidget {
                               ),
                             ),
                             keyboardType: TextInputType.number,
-                            controller: controller.amountController,
+                            controller: recipeFormProvider.amountController,
                           ),
                         ),
                       ],
@@ -74,7 +74,7 @@ class AddIngredientButton extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            controller: controller.unitController,
+                            controller: recipeFormProvider.unitController,
                           ),
                         ),
                       ],
@@ -96,7 +96,7 @@ class AddIngredientButton extends StatelessWidget {
                           ),
                         ),
                       ),
-                      controller: controller.ingredientController,
+                      controller: recipeFormProvider.ingredientController,
                     ),
                   ],
                 ),
@@ -113,7 +113,7 @@ class AddIngredientButton extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    controller.addIngredient();
+                    recipeFormProvider.addIngredient();
                     Navigator.of(context).pop();
                   },
                   style: ButtonStyle(

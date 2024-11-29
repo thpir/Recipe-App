@@ -27,7 +27,7 @@ class RecipeSaver {
   }
 
   Future<String?> saveAllRecipes() async {
-    final recipeList = await DbService.getTableData("recipes");
+    final recipeList = await DbService.readAll("recipes");
     var allRecipes =
         recipeList.map((recipe) => Recipe.fromJson(recipe)).toList();
     try {
@@ -55,46 +55,47 @@ class RecipeSaver {
     }
   }
 
-  Future<String?> importRecipes() async {
+  Future<String?> pickRecipesToImport() async {
     String message = '';
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.any,
       );
       if (result != null) {
-        if (result.files.single.path!.endsWith('.recipe')) {
-          final File file = File(result.files.single.path!);
-          file
-              .openRead()
-              .transform(utf8.decoder)
-              .transform(const LineSplitter())
-              .forEach((line) async {
-            try {
-              // Convert each line of text to a Recipe object
-              var result = Recipe.fromExportFormat(line);
-              // Convert the image string to a Uint8List and save to the device
-              String? imagePath;
-              if (result.photo != null) {
-                if (result.photo!.isNotEmpty) {
-                  var image = ImageString().fromExportFormat(result.photo!);
-                  imagePath = await saveImage(result.name, image);
-                }
-              }
-              // Add the recipe to the database
-              await importRecipe(result, imagePath);
-            } catch (e) {
-              message = 'Failed to import recipes: $e';
-            }
-          });
-          message = 'Finished importing recipes';
-        } else {
-          message = 'Invalid file format';
-        }
+        await readImportedFileAsRecipe(result.paths.first!);
       }
     } catch (e) {
       message = 'Failed to import recipes: $e';
     }
     return message;
+  }
+
+  Future<void> readImportedFileAsRecipe(String filePath) async {
+    if (filePath.endsWith('.recipe')) {
+      final File file = File(filePath);
+      final List<String> recipeStrings = await file
+          .openRead()
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .toList();
+      final List<Recipe> recipes = recipeStrings
+          .map((recipe) => Recipe.fromExportFormat(recipe))
+          .toList();
+      await Future.forEach(recipes, (recipe) async {
+        String? photoPath;
+        if (recipes[0].photo != null) {
+          if (recipes[0].photo!.isNotEmpty) {
+            var image = ImageString().fromExportFormat(recipes[0].photo!);
+            photoPath = await saveImage(recipes[0].name, image);
+            await importRecipe(recipes[0], photoPath);
+          } else {
+            await importRecipe(recipes[0], null);
+          }
+        } else {
+          await importRecipe(recipes[0], null);
+        }
+      });
+    }
   }
 
   Future<void> importRecipe(Recipe recipeSource, String? imagePath) async {
@@ -111,7 +112,7 @@ class RecipeSaver {
       favorite: 0,
       source: recipeSource.source,
     );
-    await DbService.insertItem("recipes", recipe.newRecipeToMap()).then((_) {});
+    await DbService.insertItem("recipes", recipe.newRecipeToMap());
   }
 
   Future<String?> saveImage(String recipeName, Uint8List image) async {

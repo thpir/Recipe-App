@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:recipe_app/controllers/recipe_controller.dart';
+import 'package:recipe_app/providers/recipe_form_provider.dart';
 
 class PortionSizeSelector extends StatefulWidget {
   const PortionSizeSelector({super.key});
@@ -12,7 +12,7 @@ class PortionSizeSelector extends StatefulWidget {
 class _PortionSizeSelectorState extends State<PortionSizeSelector> {
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<RecipeController>(context);
+    final recipeFormProvider = Provider.of<RecipeFormProvider>(context);
     int portionSize = 0;
 
     void setPortionDialog() {
@@ -35,9 +35,9 @@ class _PortionSizeSelectorState extends State<PortionSizeSelector> {
                       },
                       style: ButtonStyle(
                         backgroundColor:
-                            MaterialStateProperty.all(Colors.indigo),
+                            WidgetStateProperty.all(Colors.indigo),
                         foregroundColor:
-                            MaterialStateProperty.all(Colors.white),
+                            WidgetStateProperty.all(Colors.white),
                       ),
                       child: const Text(
                         "-",
@@ -56,9 +56,9 @@ class _PortionSizeSelectorState extends State<PortionSizeSelector> {
                       },
                       style: ButtonStyle(
                         backgroundColor:
-                            MaterialStateProperty.all(Colors.indigo),
+                            WidgetStateProperty.all(Colors.indigo),
                         foregroundColor:
-                            MaterialStateProperty.all(Colors.white),
+                            WidgetStateProperty.all(Colors.white),
                       ),
                       child: const Text(
                         "+",
@@ -74,17 +74,17 @@ class _PortionSizeSelectorState extends State<PortionSizeSelector> {
                     Navigator.of(context).pop();
                   },
                   style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.all(Colors.indigo),
+                    foregroundColor: WidgetStateProperty.all(Colors.indigo),
                   ),
                   child: const Text("Cancel"),
                 ),
                 TextButton(
                   onPressed: () {
-                    controller.setPortionSize(portionSize);
+                    recipeFormProvider.setPortionSize(portionSize);
                     Navigator.of(context).pop();
                   },
                   style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.all(Colors.indigo),
+                    foregroundColor: WidgetStateProperty.all(Colors.indigo),
                   ),
                   child: const Text("Set"),
                 ),
@@ -100,16 +100,16 @@ class _PortionSizeSelectorState extends State<PortionSizeSelector> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              controller.portionSize != 0
-                  ? "Portion size: ${controller.portionSize}"
+              recipeFormProvider.portionSize != 0
+                  ? "Portion size: ${recipeFormProvider.portionSize}"
                   : "Portion size: not set",
               style: const TextStyle(fontSize: 16),
             ),
             ElevatedButton(
               onPressed: setPortionDialog,
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(Colors.indigo),
-                foregroundColor: MaterialStateProperty.all(Colors.white),
+                backgroundColor: WidgetStateProperty.all(Colors.indigo),
+                foregroundColor: WidgetStateProperty.all(Colors.white),
               ),
               child: const Text("Set"),
             ),

@@ -4,7 +4,11 @@ import 'package:recipe_app/models/recipe.dart';
 import 'package:sqflite/sqflite.dart' as sql;
 
 class DbService {
+  static sql.Database? _database;
   static const String DB_NAME = "recipeDatabase.db";
+  static const String RECIPES_TABLE = "recipes";
+  static const String UNITS_TABLE = "units";
+  static const String CATEGORIES_TABLE = "categories";
   static const int DB_VERSION = 1;
   static const String CREATE_TABLE_RECIPES = """
     CREATE TABLE IF NOT EXISTS recipes(
@@ -35,6 +39,17 @@ class DbService {
     )
     """;
 
+  static Future _getInstance() async {
+    _database ??= await initializeDatabase();
+  }
+
+  static Future<void> reOpenDb() async {
+    if (_database!.isOpen) {
+      await _database!.close();
+    }
+    await _getInstance();
+  }
+
   static Future<sql.Database> initializeDatabase() async {
     String databasePath = await sql.getDatabasesPath();
     String path = '$databasePath/$DB_NAME';
@@ -46,28 +61,39 @@ class DbService {
     });
   }
 
-  static Future<List<Map<String, dynamic>>> getTableData(
-      String tableName) async {
-    final db = await DbService.initializeDatabase();
-    return db.query(tableName);
+  static Future<List<Map<String, dynamic>>> readAll(String tableName) async {
+    await _getInstance();
+    return _database!.query(tableName);
+  }
+
+  static Future<Map<String, dynamic>?> read(String table, int id) async {
+    await _getInstance();
+    final List<Map<String, dynamic>> maps =
+        await _database!.query(table, where: 'id = ?', whereArgs: [id]);
+    if (maps.isNotEmpty) {
+      return maps.first;
+    } else {
+      return null;
+    }
   }
 
   static Future<void> insertItem(
       String table, Map<String, Object?> data) async {
-    final db = await DbService.initializeDatabase();
-    db.insert(table, data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
+    await _getInstance();
+    _database!
+        .insert(table, data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
   }
 
   static Future<void> deleteItem(String table, int id) async {
-    final db = await DbService.initializeDatabase();
-    db.delete(table, where: 'id = ?', whereArgs: [id]);
+    await _getInstance();
+    _database!.delete(table, where: 'id = ?', whereArgs: [id]);
   }
 
   static Future<void> update(
     Recipe recipe,
   ) async {
-    final db = await DbService.initializeDatabase();
-    db.update(
+    await _getInstance();
+    _database!.update(
         "recipes",
         {
           'name': recipe.name,
@@ -90,8 +116,8 @@ class DbService {
     int id,
     int favorite,
   ) async {
-    final db = await DbService.initializeDatabase();
-    db.update("recipes", {'favorite': favorite},
+    await _getInstance();
+    _database!.update("recipes", {'favorite': favorite},
         where: 'id = ?', whereArgs: [id]);
   }
 }

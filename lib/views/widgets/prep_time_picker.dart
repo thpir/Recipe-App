@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:provider/provider.dart';
-import 'package:recipe_app/controllers/recipe_controller.dart';
+import 'package:recipe_app/providers/recipe_form_provider.dart';
 
 class PrepTimePicker extends StatefulWidget {
   const PrepTimePicker({super.key});
@@ -13,7 +13,7 @@ class PrepTimePicker extends StatefulWidget {
 class _PrepTimePickerState extends State<PrepTimePicker> {
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<RecipeController>(context);
+    final recipeFormProvider = Provider.of<RecipeFormProvider>(context);
     int hourValue = 0;
     int minuteValue = 0;
 
@@ -66,17 +66,17 @@ class _PrepTimePickerState extends State<PrepTimePicker> {
                     Navigator.of(context).pop();
                   },
                   style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.all(Colors.indigo),
+                    foregroundColor: WidgetStateProperty.all(Colors.indigo),
                   ),
                   child: const Text("Cancel"),
                 ),
                 TextButton(
                   onPressed: () {
-                    controller.setPrepTime(hourValue, minuteValue);
+                    recipeFormProvider.setPrepTime(hourValue, minuteValue);
                     Navigator.of(context).pop();
                   },
                   style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.all(Colors.indigo),
+                    foregroundColor: WidgetStateProperty.all(Colors.indigo),
                   ),
                   child: const Text("Set"),
                 ),
@@ -92,16 +92,16 @@ class _PrepTimePickerState extends State<PrepTimePicker> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              controller.prepTime != 0
-                  ? "Preparation time: ${controller.prepTime} min"
+              recipeFormProvider.prepTime != 0
+                  ? "Preparation time: ${recipeFormProvider.prepTime} min"
                   : "Preparation time: not set",
               style: const TextStyle(fontSize: 16),
             ),
             ElevatedButton(
               onPressed: setDurationDialog,
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(Colors.indigo),
-                foregroundColor: MaterialStateProperty.all(Colors.white),
+                backgroundColor: WidgetStateProperty.all(Colors.indigo),
+                foregroundColor: WidgetStateProperty.all(Colors.white),
               ),
               child: const Text("Set"),
             ),

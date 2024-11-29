@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:recipe_app/controllers/recipe_controller.dart';
+import 'package:recipe_app/providers/recipe_form_provider.dart';
 
 class FormImage extends StatefulWidget {
   const FormImage({super.key});
@@ -14,7 +14,7 @@ class FormImage extends StatefulWidget {
 class _FormImageState extends State<FormImage> {
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<RecipeController>(context);
+    final recipeFormProvider = Provider.of<RecipeFormProvider>(context);
     void showImagePickerDialog() {
       showDialog(
           context: context,
@@ -28,14 +28,22 @@ class _FormImageState extends State<FormImage> {
                     leading: const Icon(Icons.camera),
                     title: const Text("Take photo"),
                     onTap: () async {
-                      await controller.takeImage().then((_) => Navigator.of(context).pop());
+                      await recipeFormProvider.takeImage().then((_) {
+                        if (context.mounted) {
+                          Navigator.of(context).pop();
+                        }
+                      });
                     },
                   ),
                   ListTile(
                     leading: const Icon(Icons.image),
                     title: const Text("Choose from gallery"),
                     onTap: () async {
-                      await controller.pickImage().then((_) => Navigator.of(context).pop());
+                      await recipeFormProvider.pickImage().then((_) {
+                        if (context.mounted) {
+                          Navigator.of(context).pop();
+                        }
+                      });
                     },
                   ),
                 ],
@@ -51,17 +59,16 @@ class _FormImageState extends State<FormImage> {
             height: 200,
             width: double.infinity,
             color: Colors.black45,
-            child: controller.pickedImage != null
-                  ? Image.file(
-                    File(controller.pickedImage!.path),
+            child: recipeFormProvider.pickedImage != null
+                ? Image.file(
+                    File(recipeFormProvider.pickedImage!.path),
                     fit: BoxFit.cover,
                   )
-                  : const Icon(
+                : const Icon(
                     Icons.photo,
                     size: 100,
                     color: Colors.white38,
-                  )
-                ),
+                  )),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Align(

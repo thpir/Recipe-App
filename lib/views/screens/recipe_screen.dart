@@ -3,19 +3,16 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:keep_screen_on/keep_screen_on.dart';
-import 'package:provider/provider.dart';
-import 'package:recipe_app/controllers/recipe_controller.dart';
-import 'package:recipe_app/services/db_service.dart';
 import 'package:recipe_app/models/ingredient.dart';
 import 'package:recipe_app/models/recipe.dart';
-import 'package:recipe_app/utils/recipe_saver.dart';
-import 'package:recipe_app/views/screens/edit_recipe_screen.dart';
+import 'package:recipe_app/services/url_service.dart';
+import 'package:recipe_app/utils/image_editor.dart';
 import 'package:recipe_app/views/widgets/form_title.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:recipe_app/views/widgets/recipe_screen_widgets/recipe_action_bar.dart';
 
 class RecipeScreen extends StatefulWidget {
-  final int recipeId;
-  const RecipeScreen({required this.recipeId, super.key});
+  final Recipe recipe;
+  const RecipeScreen({required this.recipe, super.key});
 
   @override
   State<RecipeScreen> createState() => _RecipeScreenState();
@@ -23,6 +20,13 @@ class RecipeScreen extends StatefulWidget {
 
 class _RecipeScreenState extends State<RecipeScreen> {
   bool screenOn = false;
+  late Future<String> _filePath;
+
+  @override
+  void initState() {
+    super.initState();
+    _filePath = ImageEditor.getFullFilePath(widget.recipe.photo ?? '');
+  }
 
   @override
   void dispose() {
@@ -32,11 +36,8 @@ class _RecipeScreenState extends State<RecipeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<RecipeController>(context);
-    final Recipe recipe = controller.allRecipes
-        .firstWhere((recipe) => recipe.id == widget.recipeId);
     Future<Widget> showUrlIfAvailable(String source) async {
-      if (await canLaunchUrl(Uri.parse(source))) {
+      if (await UrlService().isValidRecipeLink(source)) {
         return Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(
@@ -45,7 +46,7 @@ class _RecipeScreenState extends State<RecipeScreen> {
             children: [
               const Text("Source: "),
               TextButton(
-                onPressed: () => launchUrl(Uri.parse(source)),
+                onPressed: () => UrlService().openUrl(source, context),
                 child: const Text(
                   "Link",
                   style: TextStyle(
@@ -59,14 +60,14 @@ class _RecipeScreenState extends State<RecipeScreen> {
       } else {
         return Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text("Source: ${recipe.source}"),
+          child: Text("Source: ${widget.recipe.source}"),
         );
       }
     }
 
     List<Widget> getIngredients() {
       List<Widget> ingredientList = [];
-      for (var ingredient in jsonDecode(recipe.ingredients)) {
+      for (var ingredient in jsonDecode(widget.recipe.ingredients)) {
         var newIngredient = Ingredient.fromJson(ingredient);
         ingredientList.add(
           Padding(
@@ -89,7 +90,7 @@ class _RecipeScreenState extends State<RecipeScreen> {
     List<Widget> getInstructions() {
       List<Widget> instructionsList = [];
       int index = 1;
-      for (var instruction in jsonDecode(recipe.instructions)) {
+      for (var instruction in jsonDecode(widget.recipe.instructions)) {
         instructionsList.add(
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4.0),
@@ -117,7 +118,7 @@ class _RecipeScreenState extends State<RecipeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(recipe.name),
+        title: Text(widget.recipe.name),
         actions: [
           TextButton(
               onPressed: () {
@@ -141,139 +142,78 @@ class _RecipeScreenState extends State<RecipeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Stack(children: [
-              if (recipe.photo != null)
+              if (widget.recipe.photo != null)
                 FutureBuilder(
-                    future: controller.checkIfFileExists(recipe.photo!),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return snapshot.data as bool
-                            ? Image.file(
-                                File(recipe.photo!),
-                                width: double.infinity,
-                                height: 200,
-                                fit: BoxFit.cover,
-                              )
-                            : Container();
-                      } else {
-                        return const CircularProgressIndicator();
+                  future: _filePath,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      if (snapshot.hasError) {
+                        return Container(
+                            color: Theme.of(context).primaryColor,
+                            width: double.infinity,
+                            height:
+                                MediaQuery.of(context).size.width * (9 / 16),
+                            alignment: Alignment.center,
+                            child: Icon(
+                              Icons.image_not_supported_outlined,
+                              color: Theme.of(context)
+                                  .buttonTheme
+                                  .colorScheme!
+                                  .secondaryContainer,
+                              size: 50,
+                            ));
                       }
-                    }),
-              Row(
-                children: [
-                  IconButton.filled(
-                    onPressed: () async {
-                      await DbService.likeRecipe(
-                              widget.recipeId, recipe.favorite == 0 ? 1 : 0)
-                          .then((_) async {
-                        await controller
-                            .fetchAllRecipes()
-                            .then((_) => setState(() {}));
-                      });
-                    },
-                    style: ButtonStyle(
-                      backgroundColor:
-                          WidgetStateProperty.all(Colors.black54),
-                    ),
-                    icon: recipe.favorite == 0
-                        ? const Icon(Icons.favorite_border)
-                        : const Icon(Icons.favorite),
-                  ),
-                  IconButton.filled(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => EditRecipeScreen(
-                            recipe: recipe,
-                          ),
-                        ),
+                      var imageFile = File(snapshot.data!);
+                      var bytes = imageFile.readAsBytesSync();
+                      return Image.memory(
+                        bytes,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: MediaQuery.of(context).size.width * (9 / 16),
                       );
-                    },
-                    style: ButtonStyle(
-                      backgroundColor:
-                          WidgetStateProperty.all(Colors.black54),
-                    ),
-                    icon: const Icon(Icons.edit),
-                  ),
-                  IconButton.filled(
-                    onPressed: () async {
-                      recipe.recipeToExportFormat().then((value) async {
-                        var result = await RecipeSaver()
-                            .saveSingleRecipe(value, recipe.name);
-                        if (context.mounted) {
-                          if (result != null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(result),
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Successfully saved recipe!'),
-                              ),
-                            );
-                          }
-                        }
-                      });
-                    },
-                    style: ButtonStyle(
-                      backgroundColor:
-                          WidgetStateProperty.all(Colors.black54),
-                    ),
-                    icon: const Icon(Icons.share),
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: Container(),
-                  ),
-                  IconButton.filled(
-                    onPressed: () async {
-                      await DbService.deleteItem('recipes', widget.recipeId)
-                          .then((_) async {
-                        Navigator.pop(context);
-                        await controller.updateRecipeList();
-                      });
-                    },
-                    style: ButtonStyle(
-                      backgroundColor:
-                          WidgetStateProperty.all(Colors.black54),
-                    ),
-                    icon: const Icon(
-                      Icons.delete_outline,
-                      color: Colors.red,
-                    ),
-                  ),
-                ],
-              )
+                    }
+                    return Container(
+                        color: Theme.of(context).primaryColor,
+                        width: double.infinity,
+                        height: MediaQuery.of(context).size.width * (9 / 16),
+                        alignment: Alignment.center,
+                        child: CircularProgressIndicator(
+                          color: Theme.of(context)
+                              .buttonTheme
+                              .colorScheme!
+                              .secondaryContainer,
+                        ));
+                  },
+                ),
+              RecipeActionBar(widget.recipe),
             ]),
-            if (recipe.preparationTime != 0)
+            if (widget.recipe.preparationTime != 0)
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child:
-                    Text("Preparation time: ${recipe.preparationTime} minutes"),
+                    Text("Preparation time: ${widget.recipe.preparationTime} minutes"),
               ),
-            if (recipe.cookingTime != 0)
+            if (widget.recipe.cookingTime != 0)
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text("Cooking time: ${recipe.cookingTime} minutes"),
+                child: Text("Cooking time: ${widget.recipe.cookingTime} minutes"),
               ),
-            if (recipe.portionSize != '0')
+            if (widget.recipe.portionSize != '0')
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text("Portion size: ${recipe.portionSize}"),
+                child: Text("Portion size: ${widget.recipe.portionSize}"),
               ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text("Difficulty: ${recipe.difficulty}"),
+              child: Text("Difficulty: ${widget.recipe.difficulty}"),
             ),
             const FormTitle(text: "Ingredients:"),
             ...getIngredients(),
             const FormTitle(text: "Instructions:"),
             ...getInstructions(),
-            if (recipe.source != null)
+            if (widget.recipe.source != null)
               FutureBuilder(
-                  future: showUrlIfAvailable(recipe.source!),
+                  future: showUrlIfAvailable(widget.recipe.source!),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       return snapshot.data as Widget;

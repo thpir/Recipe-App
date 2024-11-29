@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:recipe_app/controllers/recipe_controller.dart';
+import 'package:recipe_app/providers/recipe_form_provider.dart';
 import 'package:recipe_app/models/category_model.dart';
 
 class TagSelector extends StatefulWidget {
@@ -21,10 +21,11 @@ class _TagSelectorState extends State<TagSelector> {
   }
 
   Future<void> getData() async {
-    await Provider.of<RecipeController>(context, listen: false)
+    final recipeFormProvider = Provider.of<RecipeFormProvider>(context, listen: false);
+    await recipeFormProvider
         .fetchCategories()
         .then((_) {
-      allCategories = Provider.of<RecipeController>(context, listen: false)
+      allCategories = recipeFormProvider
           .availableCategories
           .map((e) => CategoryModel(name: e))
           .toList();
@@ -34,7 +35,7 @@ class _TagSelectorState extends State<TagSelector> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<RecipeController>(context);
+    final recipeFormProvider = Provider.of<RecipeFormProvider>(context);
 
     bool categoriesAvailable() {
       for (CategoryModel category in allCategories) {
@@ -133,7 +134,7 @@ class _TagSelectorState extends State<TagSelector> {
                           ? Container()
                           : TextButton.icon(
                               onPressed: () async {
-                                controller.addCategory(tagController.text);
+                                recipeFormProvider.addCategory(tagController.text);
                                 await getData().then((_) {
                                   setState(() {});
                                 });
@@ -157,11 +158,11 @@ class _TagSelectorState extends State<TagSelector> {
                         selectedTags.add(category.name);
                       }
                     }
-                    controller.setCategories(selectedTags);
+                    recipeFormProvider.setCategories(selectedTags);
                     Navigator.of(context).pop();
                   },
                   style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.all(Colors.indigo),
+                    foregroundColor: WidgetStateProperty.all(Colors.indigo),
                   ),
                   child: const Text("Done"),
                 ),
@@ -175,8 +176,8 @@ class _TagSelectorState extends State<TagSelector> {
       child: ElevatedButton(
         onPressed: addCategoriesDialog,
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all(Colors.indigo),
-          foregroundColor: MaterialStateProperty.all(Colors.white),
+          backgroundColor: WidgetStateProperty.all(Colors.indigo),
+          foregroundColor: WidgetStateProperty.all(Colors.white),
         ),
         child: const Text("Select / Unselect"),
       ),

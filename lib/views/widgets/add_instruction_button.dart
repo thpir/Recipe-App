@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:recipe_app/controllers/recipe_controller.dart';
+import 'package:recipe_app/providers/recipe_form_provider.dart';
 
 class AddInstructionButton extends StatelessWidget {
   const AddInstructionButton({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<RecipeController>(context);
+    final recipeFormProvider = Provider.of<RecipeFormProvider>(context);
 
     void addInstructionDialog() {
       showDialog(
@@ -32,7 +32,7 @@ class AddInstructionButton extends StatelessWidget {
                           ),
                         ),
                       ),
-                      controller: controller.instructionController,
+                      controller: recipeFormProvider.instructionController,
                     ),
                   ],
                 ),
@@ -43,17 +43,17 @@ class AddInstructionButton extends StatelessWidget {
                     Navigator.of(context).pop();
                   },
                   style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.all(Colors.indigo),
+                    foregroundColor: WidgetStateProperty.all(Colors.indigo),
                   ),
                   child: const Text("Cancel"),
                 ),
                 TextButton(
                   onPressed: () {
-                    controller.addInstruction();
+                    recipeFormProvider.addInstruction();
                     Navigator.of(context).pop();
                   },
                   style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.all(Colors.indigo),
+                    foregroundColor: WidgetStateProperty.all(Colors.indigo),
                   ),
                   child: const Text("Add"),
                 ),
@@ -67,8 +67,8 @@ class AddInstructionButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: addInstructionDialog,
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all(Colors.indigo),
-          foregroundColor: MaterialStateProperty.all(Colors.white),
+          backgroundColor: WidgetStateProperty.all(Colors.indigo),
+          foregroundColor: WidgetStateProperty.all(Colors.white),
         ),
         child: const Text("Add Instruction"),
       ),

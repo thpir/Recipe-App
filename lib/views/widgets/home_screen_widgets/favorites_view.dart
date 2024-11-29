@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:recipe_app/controllers/recipe_controller.dart';
+import 'package:recipe_app/providers/recipes_provider.dart';
 import 'package:recipe_app/views/widgets/home_screen_widgets/recipe_grid_card.dart';
 
 class FavoritesView extends StatelessWidget {
@@ -8,56 +8,48 @@ class FavoritesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<RecipeController>(context);
-    return FutureBuilder(
-        future: controller.fetchAllRecipes(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            var allRecipes = controller.allRecipes
-                .where((element) => element.favorite == 1)
-                .toList();
-            if (allRecipes.isEmpty) {
-              return Center(
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.favorite_border_rounded,
-                        size: 50,
-                        color: Colors.indigo[200],
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        "You don't have any favorites yet!",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
+    final recipesProvider = Provider.of<RecipesProvider>(context);
+    var allFavoriteRecipes = recipesProvider.recipes
+        .where((recipe) => recipe.favorite == 1)
+        .map((recipe) => RecipeGridCard(recipe: recipe))
+        .toList();
+    return allFavoriteRecipes.isEmpty
+        ? Center(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.favorite_border_rounded,
+                    size: 50,
+                    color: Colors.indigo[200],
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    "You don't have any favorites yet!",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+          )
+        : Stack(
+            children: [
+              if (recipesProvider.isLoading)
+                const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              SingleChildScrollView(
+                child: Container(
+                  width: double.infinity,
+                  alignment: Alignment.center,
+                  child: Wrap(
+                    children: allFavoriteRecipes,
                   ),
                 ),
-              );
-            }
-            allRecipes.sort((a, b) => a.name.compareTo(b.name));
-            return GridView.builder(
-                padding: const EdgeInsets.all(8),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 8,
-                  crossAxisSpacing: 8,
-                ),
-                itemCount: allRecipes.length,
-                itemBuilder: (context, index) {
-                  return RecipeGridCard(recipeId: allRecipes[index].id!);
-                },
-              );
-          } else {
-            return const Center(
-              child: CircularProgressIndicator(
-                color: Colors.indigo,
-              ),
-            );
-          }
-        });
+              )
+            ],
+          );
   }
 }

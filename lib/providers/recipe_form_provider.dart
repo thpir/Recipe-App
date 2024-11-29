@@ -2,17 +2,14 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
-import 'package:recipe_app/services/db_service.dart';
 import 'package:recipe_app/models/ingredient.dart';
 import 'package:recipe_app/models/recipe.dart';
+import 'package:recipe_app/services/db_service.dart';
 
-class RecipeController extends ChangeNotifier {
-  final BuildContext context;
-  RecipeController({required this.context});
+class RecipeFormProvider extends ChangeNotifier {
   XFile? pickedImage;
   final TextEditingController nameController = TextEditingController();
   final TextEditingController amountController = TextEditingController();
@@ -20,6 +17,9 @@ class RecipeController extends ChangeNotifier {
   final TextEditingController ingredientController = TextEditingController();
   final TextEditingController instructionController = TextEditingController();
   final TextEditingController sourceController = TextEditingController();
+  int isLiked = 0;
+  bool permissionGranted = false;
+  String? imagePath;
   List<Ingredient> ingredients = [];
   List<String> instructions = [];
   List<String> categories = [];
@@ -28,24 +28,14 @@ class RecipeController extends ChangeNotifier {
   int portionSize = 0;
   String difficulty = "Easy";
   List<String> _availableCategories = [];
-  List<Recipe> _allRecipes = [];
-  int isLiked = 0;
-  bool permissionGranted = false;
-  String? imagePath;
 
-  @override
-  void dispose() {
-    super.dispose();
-    nameController.dispose();
-    amountController.dispose();
-    unitController.dispose();
-    ingredientController.dispose();
-    instructionController.dispose();
-    sourceController.dispose();
+  RecipeFormProvider() {
+    fetchCategories();
   }
 
-  Future<void> updateRecipeList() async {
-    notifyListeners();
+  RecipeFormProvider.fromRecipe(Recipe recipe) {
+    setRecipeForEditing(recipe);
+    fetchCategories();
   }
 
   setRecipeForEditing(Recipe recipe) async {
@@ -77,17 +67,46 @@ class RecipeController extends ChangeNotifier {
     return await File(path).exists();
   }
 
-  // getting a copy of all the categories
-  List<Recipe> get allRecipes => _allRecipes;
-
-  // Fetch all categories from the database
-  Future<void> fetchAllRecipes() async {
-    final recipeList = await DbService.getTableData("recipes");
-    _allRecipes = recipeList.map((recipe) => Recipe.fromJson(recipe)).toList();
+  Future<String?> saveImage(String recipeName) async {
+    if (pickedImage != null) {
+      final documentsDirectory = await getApplicationDocumentsDirectory();
+      final filename =
+          '${recipeName.replaceAll(RegExp('[^A-Za-z0-9]'), '')}${DateTime.now().millisecondsSinceEpoch}';
+      final savedFile = File(path.join(documentsDirectory.path, filename));
+      await savedFile.writeAsBytes(await pickedImage!.readAsBytes());
+      return savedFile.path;
+    } else {
+      return null;
+    }
   }
 
   // Update the recipe in the database
-  Future<void> updateRecipe(int id) async {
+  // Future<void> updateRecipe(int? id) async {
+  //   if (nameController.text.isNotEmpty) {
+  //     await saveImage(nameController.text).then((value) async {
+  //       final Recipe recipe = Recipe(
+  //         id: id,
+  //         name: nameController.text,
+  //         ingredients: jsonEncode(
+  //             ingredients.map((ingredient) => ingredient.toJson()).toList()),
+  //         preparationTime: prepTime,
+  //         cookingTime: cookTime,
+  //         portionSize: portionSize.toString(),
+  //         difficulty: difficulty,
+  //         categories: jsonEncode(categories),
+  //         instructions: jsonEncode(instructions),
+  //         photo: value,
+  //         favorite: isLiked,
+  //         source: sourceController.text,
+  //       );
+  //       await DbService.update(recipe).then((_) => clearForm());
+  //       //await fetchAllRecipes().then((value) => notifyListeners());
+  //     });
+  //   }
+  // }
+
+  // Save recipe to the database
+  Future<void> saveRecipe(int? id) async {
     if (nameController.text.isNotEmpty) {
       await saveImage(nameController.text).then((value) async {
         final Recipe recipe = Recipe(
@@ -105,48 +124,18 @@ class RecipeController extends ChangeNotifier {
           favorite: isLiked,
           source: sourceController.text,
         );
-        await DbService.update(recipe).then((_) => clearForm());
-        await fetchAllRecipes().then((value) => notifyListeners());
-      });
-    }
-  }
-
-  Future<String?> saveImage(String recipeName) async {
-    if (pickedImage != null) {
-      final documentsDirectory = await getApplicationDocumentsDirectory();
-      final filename =
-          '${recipeName.replaceAll(RegExp('[^A-Za-z0-9]'), '')}${DateTime.now().millisecondsSinceEpoch}';
-      final savedFile = File(path.join(documentsDirectory.path, filename));
-      await savedFile.writeAsBytes(await pickedImage!.readAsBytes());
-      return savedFile.path;
-    } else {
-      return null;
-    }
-  }
-
-  // Save recipe to the database
-  Future<void> saveRecipe() async {
-    if (nameController.text.isNotEmpty) {
-      await saveImage(nameController.text).then((value) async {
-        final Recipe recipe = Recipe(
-          name: nameController.text,
-          ingredients: jsonEncode(
-              ingredients.map((ingredient) => ingredient.toJson()).toList()),
-          preparationTime: prepTime,
-          cookingTime: cookTime,
-          portionSize: portionSize.toString(),
-          difficulty: difficulty,
-          categories: jsonEncode(categories),
-          instructions: jsonEncode(instructions),
-          photo: value,
-          favorite: isLiked,
-          source: sourceController.text,
-        );
-        await DbService.insertItem("recipes", recipe.newRecipeToMap())
-            .then((_) {
-          clearForm();
-          notifyListeners();
-        });
+        if (id != null) {
+          await DbService.update(recipe).then((_) {
+            clearForm();
+            notifyListeners();
+          });
+        } else {
+          await DbService.insertItem("recipes", recipe.newRecipeToMap())
+              .then((_) {
+            clearForm();
+            notifyListeners();
+          });
+        }
       });
     }
   }
@@ -176,7 +165,7 @@ class RecipeController extends ChangeNotifier {
 
   // Fetch all categories from the database
   Future<void> fetchCategories() async {
-    final categoryList = await DbService.getTableData("categories");
+    final categoryList = await DbService.readAll("categories");
     _availableCategories =
         categoryList.map((category) => category["name"].toString()).toList();
     notifyListeners();
@@ -254,5 +243,16 @@ class RecipeController extends ChangeNotifier {
     //if (pickedImage == null) return;
     //image = await pickedImage.readAsBytes();
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    nameController.dispose();
+    amountController.dispose();
+    unitController.dispose();
+    ingredientController.dispose();
+    instructionController.dispose();
+    sourceController.dispose();
   }
 }

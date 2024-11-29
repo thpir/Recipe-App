@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:recipe_app/controllers/recipe_controller.dart';
+import 'package:recipe_app/providers/recipe_form_provider.dart';
 
 enum Difficulty { easy, medium, hard }
 
@@ -15,7 +15,7 @@ class _DifficultySelectorState extends State<DifficultySelector> {
   Difficulty? _difficulty = Difficulty.easy;
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<RecipeController>(context);
+    final recipeFormProvider = Provider.of<RecipeFormProvider>(context);
     return Column(
       children: [
         RadioListTile<Difficulty>(
@@ -26,7 +26,7 @@ class _DifficultySelectorState extends State<DifficultySelector> {
           onChanged: (Difficulty? value) {
             setState(() {
               _difficulty = value;
-              controller.difficulty = "Easy";
+              recipeFormProvider.difficulty = "Easy";
             });
           },
         ),
@@ -38,7 +38,7 @@ class _DifficultySelectorState extends State<DifficultySelector> {
           onChanged: (Difficulty? value) {
             setState(() {
               _difficulty = value;
-              controller.difficulty = "Medium";
+              recipeFormProvider.difficulty = "Medium";
             });
           },
         ),
@@ -50,7 +50,7 @@ class _DifficultySelectorState extends State<DifficultySelector> {
           onChanged: (Difficulty? value) {
             setState(() {
               _difficulty = value;
-              controller.difficulty = "Hard";
+              recipeFormProvider.difficulty = "Hard";
             });
           },
         ),

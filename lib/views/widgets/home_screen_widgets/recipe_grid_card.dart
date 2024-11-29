@@ -2,18 +2,19 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:recipe_app/controllers/recipe_controller.dart';
+import 'package:recipe_app/models/recipe.dart';
+import 'package:recipe_app/providers/recipes_provider.dart';
 import 'package:recipe_app/globals.dart';
 import 'package:recipe_app/views/screens/recipe_screen.dart';
 import 'package:recipe_app/views/widgets/home_screen_widgets/image_grid_placeholder.dart';
 
 class RecipeGridCard extends StatelessWidget {
-  final int recipeId;
-  const RecipeGridCard({required this.recipeId, super.key});
+  final Recipe recipe;
+  const RecipeGridCard({required this.recipe, super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<RecipeController>(context);
+    final recipesProvider = Provider.of<RecipesProvider>(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
       child: InkWell(
@@ -22,23 +23,20 @@ class RecipeGridCard extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (context) => RecipeScreen(
-                  recipeId: controller.allRecipes
-                          .firstWhere((recipe) => recipe.id == recipeId)
-                          .id ??
-                      0),
+                  recipe: recipe),
             ),
           );
           //if (!context.mounted) return;
           if (context.mounted && result != null) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(result),
-            duration: const Duration(seconds: 2),
-          ));
+              content: Text(result),
+              duration: const Duration(seconds: 2),
+            ));
           }
         },
         child: Container(
-          width: double.infinity,
-          height: double.infinity,
+          width: 150,
+          height: 150,
           decoration: BoxDecoration(
             color: Colors.indigo[100],
             borderRadius: BorderRadius.circular(16),
@@ -56,23 +54,15 @@ class RecipeGridCard extends StatelessWidget {
                 BorderRadius.all(Radius.circular(defaultBorderRadius)),
             child: Stack(
               children: [
-                controller.allRecipes
-                            .firstWhere((recipe) => recipe.id == recipeId)
-                            .photo !=
+                recipe.photo !=
                         null
                     ? FutureBuilder(
-                        future: controller.checkIfFileExists(controller
-                            .allRecipes
-                            .firstWhere((recipe) => recipe.id == recipeId)
-                            .photo!),
+                        future: recipesProvider.checkIfFileExists(recipe.photo!),
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             return snapshot.data as bool
                                 ? Image.file(
-                                    File(controller.allRecipes
-                                        .firstWhere(
-                                            (recipe) => recipe.id == recipeId)
-                                        .photo!),
+                                    File(recipe.photo!),
                                     width: double.infinity,
                                     height: double.infinity,
                                     fit: BoxFit.cover)
@@ -89,9 +79,7 @@ class RecipeGridCard extends StatelessWidget {
                     width: double.infinity,
                     color: Colors.black54,
                     child: Text(
-                      controller.allRecipes
-                          .firstWhere((recipe) => recipe.id == recipeId)
-                          .name,
+                      recipe.name,
                       softWrap: true,
                       style: const TextStyle(
                         color: Colors.white,
